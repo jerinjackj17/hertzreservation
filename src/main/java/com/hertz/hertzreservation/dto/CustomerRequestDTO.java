@@ -5,12 +5,20 @@ import java.time.LocalDate;
 
 public class CustomerRequestDTO {
 
+    private String name;
     private int age;
     private BigDecimal income;
     private LocalDate rentalStartDate;
     private LocalDate rentalEndDate;
     private BigDecimal price;
+    
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
     public LocalDate getRentalStartDate() {
         return rentalStartDate;
     }

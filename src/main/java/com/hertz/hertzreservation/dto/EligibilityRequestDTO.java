@@ -5,12 +5,14 @@ import java.time.LocalDate;
 
 public class EligibilityRequestDTO {
 
+    private String name;
     private int age;
     private BigDecimal annualIncome;
     private int rentalsLastYearCount;
     private int accidentsLastYearCount;
     private LocalDate reservationDate;
-
+    
+    
     public EligibilityRequestDTO() {
     }
 
@@ -52,5 +54,13 @@ public class EligibilityRequestDTO {
 
     public void setReservationDate(LocalDate reservationDate) {
         this.reservationDate = reservationDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
