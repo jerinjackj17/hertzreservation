@@ -1,13 +1,12 @@
 package com.hertz.hertzreservation;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+// disabled test because the project uses external services (Mongo, Kafka, Email)
 class HertzreservationApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+        // intentionally empty
+    }
 }

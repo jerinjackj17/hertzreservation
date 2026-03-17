@@ -1,36 +1,36 @@
 package com.hertz.hertzreservation.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-
-@Table(name = "products")
+/*
+ * MongoDB Product Document
+ * Stored inside 'products' collection in hertz_db
+ */
+@Document(collection = "products")
 public class ProductEntity {
 
     @Id
-    @Column(name = "product_id")
-    private Long productId;
+    private String id;   // Mongo internal ID
+
+    private Long productId;   // Business ID (your original product_id)
 
     private String category;
     private String size;
     private String type;
-
-    @Column(name = "drive_type")
     private String driveType;
-
     private String duration;
-
     private BigDecimal price;
-
-    @Column(name = "valid_from")
     private LocalDate validFrom;
-
-    @Column(name = "valid_to")
     private LocalDate validTo;
 
-    public ProductEntity() {
+    public ProductEntity() {}
+
+    public String getId() {
+        return id;
     }
 
     public Long getProductId() {

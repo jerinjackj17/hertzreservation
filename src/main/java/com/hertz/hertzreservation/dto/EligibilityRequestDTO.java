@@ -9,6 +9,7 @@ public class EligibilityRequestDTO {
     private int age;
     private BigDecimal annualIncome;
     private int rentalsLastYearCount;
+    
     private int accidentsLastYearCount;
     private LocalDate reservationDate;
     

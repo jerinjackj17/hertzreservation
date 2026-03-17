@@ -6,7 +6,11 @@ import com.hertz.hertzreservation.dto.LoyaltyResponseDTO;
 import com.hertz.hertzreservation.dto.ProductResponseDTO;
 import com.hertz.hertzreservation.service.LoyaltyService;
 import com.hertz.hertzreservation.service.ProductEligibilityService;
+
 import org.springframework.web.bind.annotation.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -16,6 +20,10 @@ public class LoyaltyController {
 
     private final LoyaltyService loyaltyService;
     private final ProductEligibilityService productEligibilityService;
+
+    // Logger for controller requests
+    private static final Logger logger =
+            LoggerFactory.getLogger(LoyaltyController.class);
 
     public LoyaltyController(LoyaltyService loyaltyService,
                              ProductEligibilityService productEligibilityService) {
@@ -28,7 +36,15 @@ public class LoyaltyController {
     public LoyaltyResponseDTO determineLevel(
             @RequestBody LoyaltyRequestDTO request) {
 
-        return loyaltyService.determineLoyaltyLevel(request);
+        logger.info("Received request to determine loyalty level. totalPurchaseAmount={}",
+                request.getTotalPurchaseAmountYearly());
+
+        LoyaltyResponseDTO response = loyaltyService.determineLoyaltyLevel(request);
+
+        logger.info("Loyalty level determined successfully: {}",
+                response.getMembershipLevel());
+
+        return response;
     }
 
     // API 2 — Determine Eligible Products
@@ -36,6 +52,14 @@ public class LoyaltyController {
     public List<ProductResponseDTO> getEligibleProducts(
             @RequestBody EligibilityRequestDTO request) {
 
-        return productEligibilityService.getEligibleProducts(request);
+        logger.info("Received request to fetch eligible products for reservationDate={}",
+                request.getReservationDate());
+
+        List<ProductResponseDTO> products =
+                productEligibilityService.getEligibleProducts(request);
+
+        logger.info("Total eligible products returned={}", products.size());
+
+        return products;
     }
 }

@@ -1,38 +1,49 @@
 package com.hertz.hertzreservation.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 
 /*
- * Incoming request body for creating/updating customer.
+ * Response body returned to the client for customer APIs.
  */
-public class CustomerRequestDTO {
+public class CustomerResponseDTO {
 
-    @NotBlank(message = "First name is required")
+    private String id;
     private String firstName;
-
-    @NotBlank(message = "Last name is required")
     private String lastName;
 
-    // Date of birth is required to detect birthday events
-    @NotNull(message = "Date of birth is required")
+    // Date of birth returned to UI
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
     private String email;
-
-    // For now, store only count of rentals in last year
-    @NotNull(message = "Rentals last year is required")
     private Integer rentalsLastYear;
 
-    public CustomerRequestDTO() {
+    public CustomerResponseDTO() {
+    }
+    // constructor used to create a CustomerResponseDTO object when returning data from the service layer
+    public CustomerResponseDTO(String id,
+                               String firstName,
+                               String lastName,
+                               LocalDate dateOfBirth,
+                               String email,
+                               Integer rentalsLastYear) {
+
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.rentalsLastYear = rentalsLastYear;
     }
 
     // ---------- Getters and Setters ----------
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;

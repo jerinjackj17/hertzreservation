@@ -1,38 +1,53 @@
-package com.hertz.hertzreservation.dto;
+package com.hertz.hertzreservation.entity;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
-/*
- * Incoming request body for creating/updating customer.
- */
-public class CustomerRequestDTO {
+@Document(collection = "customers")
+public class Customer {
 
-    @NotBlank(message = "First name is required")
+    @Id
+    private String id;
+
     private String firstName;
-
-    @NotBlank(message = "Last name is required")
     private String lastName;
 
-    // Date of birth is required to detect birthday events
-    @NotNull(message = "Date of birth is required")
+    // Date of birth used to detect birthday events
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @Indexed(unique = true)
     private String email;
 
-    // For now, store only count of rentals in last year
-    @NotNull(message = "Rentals last year is required")
+    // For now, we store only the count of rentals in last year
     private Integer rentalsLastYear;
 
-    public CustomerRequestDTO() {
+    public Customer() {}
+
+    public Customer(String firstName,
+                    String lastName,
+                    LocalDate dateOfBirth,
+                    String email,
+                    Integer rentalsLastYear) {
+
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.rentalsLastYear = rentalsLastYear;
     }
 
     // ---------- Getters and Setters ----------
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
