@@ -11,13 +11,13 @@ public class VehicleEventDTO {
 
     private String eventType;
     private String vehicleId;
+
+    // customer name for email greeting
+    private String customerName;
+
     private String customerEmail;
     private String searchCriteria;
     private Instant eventTime;
-
-    // ADD THESE
-    private String vehicleName;
-    private String vehicleType;
 
     public VehicleEventDTO() {
     }
@@ -36,6 +36,14 @@ public class VehicleEventDTO {
 
     public void setVehicleId(String vehicleId) {
         this.vehicleId = vehicleId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public String getCustomerEmail() {
@@ -60,22 +68,5 @@ public class VehicleEventDTO {
 
     public void setEventTime(Instant eventTime) {
         this.eventTime = eventTime;
-    }
-
-    // NEW
-    public String getVehicleName() {
-        return vehicleName;
-    }
-
-    public void setVehicleName(String vehicleName) {
-        this.vehicleName = vehicleName;
-    }
-
-    public String getVehicleType() {
-        return vehicleType;
-    }
-
-    public void setVehicleType(String vehicleType) {
-        this.vehicleType = vehicleType;
     }
 }

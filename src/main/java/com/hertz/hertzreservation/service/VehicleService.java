@@ -5,7 +5,6 @@ import com.hertz.hertzreservation.dto.VehicleResponseDTO;
 
 import java.util.List;
 
-
 public interface VehicleService {
 
     VehicleResponseDTO createVehicle(VehicleRequestDTO request);
@@ -17,6 +16,4 @@ public interface VehicleService {
     VehicleResponseDTO getVehicleById(String id);
 
     List<VehicleResponseDTO> getAllVehicles();
-    
-    void reserveVehicle(String vehicleId, String customerEmail);
 }

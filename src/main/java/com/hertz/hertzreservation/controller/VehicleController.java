@@ -28,8 +28,7 @@ public class VehicleController {
         this.vehicleService = vehicleService;
     }
 
-    // Create Vehicle
-
+    // create vehicle
     @PostMapping
     public ResponseEntity<VehicleResponseDTO> createVehicle(
             @Valid @RequestBody VehicleRequestDTO request) {
@@ -41,8 +40,7 @@ public class VehicleController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // Update Vehicle
-
+    // update vehicle
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponseDTO> updateVehicle(
             @PathVariable String id,
@@ -55,8 +53,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    // Delete Vehicle
-
+    // delete vehicle
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(
             @PathVariable String id) {
@@ -68,8 +65,7 @@ public class VehicleController {
         return ResponseEntity.noContent().build();
     }
 
-    // Get Vehicle by ID
-
+    // get vehicle by id
     @GetMapping("/{id}")
     public ResponseEntity<VehicleResponseDTO> getVehicleById(
             @PathVariable String id) {
@@ -81,8 +77,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    // Get All Vehicles
-
+    // get all vehicles
     @GetMapping
     public ResponseEntity<List<VehicleResponseDTO>> getAllVehicles() {
 
@@ -91,19 +86,5 @@ public class VehicleController {
         List<VehicleResponseDTO> vehicles = vehicleService.getAllVehicles();
 
         return ResponseEntity.ok(vehicles);
-    }
-    // vehcile reservation
-    @PostMapping("/{id}/reserve")
-    public ResponseEntity<String> reserveVehicle(
-            @PathVariable String id,
-            @RequestParam String email) {
-
-        logger.info("Received vehicle reservation request id={} email={}", id, email);
-
-        vehicleService.reserveVehicle(id, email);
-
-        logger.info("Reservation event triggered for vehicle id={}", id);
-
-        return ResponseEntity.ok("Vehicle reservation request received");
     }
 }

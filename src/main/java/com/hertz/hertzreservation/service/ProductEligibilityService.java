@@ -2,26 +2,36 @@ package com.hertz.hertzreservation.service;
 
 import com.hertz.hertzreservation.dto.EligibilityRequestDTO;
 import com.hertz.hertzreservation.dto.ProductResponseDTO;
+import com.hertz.hertzreservation.dto.VehicleEventDTO;
 import com.hertz.hertzreservation.entity.ProductEntity;
 import com.hertz.hertzreservation.repository.ProductRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductEligibilityService {
 
-    // Logger for product eligibility evaluation
+    // logger for product eligibility evaluation
     private static final Logger logger =
             LoggerFactory.getLogger(ProductEligibilityService.class);
 
     private final ProductRepository productRepository;
     private final EligibilityService eligibilityService;
+
+    // used to call kafka event service when no products found
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    // kafka event service URL
+    private static final String EVENT_SERVICE_URL =
+            "http://kafka-event-service:8082/events/vehicle";
 
     public ProductEligibilityService(ProductRepository productRepository,
                                      EligibilityService eligibilityService) {
@@ -34,22 +44,22 @@ public class ProductEligibilityService {
         logger.info("Starting product eligibility check for reservationDate={}",
                 request.getReservationDate());
 
-        // Step 1: Check customer eligibility
+        // step 1: check customer eligibility — if they fail, just return empty, no event
         if (!eligibilityService.isEligible(request)) {
-            logger.warn("Customer is not eligible for any products");
+            logger.warn("Customer failed eligibility check — no event fired");
             return List.of();
         }
 
         logger.info("Customer passed eligibility checks");
 
-        // Step 2: Fetch all products from DB
+        // step 2: fetch all products from DB
         logger.debug("Fetching products from database");
 
         List<ProductEntity> products = productRepository.findAll();
 
         logger.info("Total products retrieved from database={}", products.size());
 
-        // Step 3: Apply product-specific rules
+        // step 3: apply product-specific rules
         List<ProductResponseDTO> eligibleProducts = products.stream()
                 .filter(product -> isDateValid(product, request))
                 .filter(product -> isLargeVehicleAllowed(product, request))
@@ -59,7 +69,44 @@ public class ProductEligibilityService {
 
         logger.info("Total eligible products returned={}", eligibleProducts.size());
 
+        // step 4: customer passed eligibility but no products matched — fire event
+        if (eligibleProducts.isEmpty()) {
+            logger.warn("Customer eligible but no products found — publishing VEHICLE_NOT_AVAILABLE");
+            publishNotAvailableEvent(request);
+        }
+
         return eligibleProducts;
+    }
+
+    // only called when customer passes eligibility but no products are found
+    private void publishNotAvailableEvent(EligibilityRequestDTO request) {
+
+        try {
+
+            // build readable summary of what the customer searched for
+            String searchCriteria = "Name: " + request.getName()
+                    + ", Age: " + request.getAge()
+                    + ", Income: " + request.getAnnualIncome()
+                    + ", Reservation Date: " + request.getReservationDate();
+
+            VehicleEventDTO event = new VehicleEventDTO();
+            event.setEventType("VEHICLE_NOT_AVAILABLE");
+            event.setCustomerName(request.getName());
+            event.setCustomerEmail(request.getEmail());
+            event.setSearchCriteria(searchCriteria);
+            event.setEventTime(Instant.now());
+
+            logger.info("Publishing VEHICLE_NOT_AVAILABLE event for email={}",
+                    request.getEmail());
+
+            restTemplate.postForObject(EVENT_SERVICE_URL, event, String.class);
+
+            logger.info("VEHICLE_NOT_AVAILABLE event published successfully");
+
+        } catch (Exception ex) {
+            // log but don't crash — event failure should not block the API response
+            logger.error("Failed to publish VEHICLE_NOT_AVAILABLE event", ex);
+        }
     }
 
     private boolean isDateValid(ProductEntity product, EligibilityRequestDTO request) {

@@ -6,15 +6,33 @@ import java.time.LocalDate;
 public class EligibilityRequestDTO {
 
     private String name;
+
+    // added — needed to send VEHICLE_NOT_AVAILABLE email when no products found
+    private String email;
+
     private int age;
     private BigDecimal annualIncome;
     private int rentalsLastYearCount;
-    
     private int accidentsLastYearCount;
     private LocalDate reservationDate;
-    
-    
+
     public EligibilityRequestDTO() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public int getAge() {
@@ -55,13 +73,5 @@ public class EligibilityRequestDTO {
 
     public void setReservationDate(LocalDate reservationDate) {
         this.reservationDate = reservationDate;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

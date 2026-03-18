@@ -2,14 +2,12 @@ package com.hertz.hertzreservation.service;
 
 import com.hertz.hertzreservation.dto.VehicleRequestDTO;
 import com.hertz.hertzreservation.dto.VehicleResponseDTO;
-import com.hertz.hertzreservation.dto.VehicleEventDTO;
 import com.hertz.hertzreservation.entity.VehicleEntity;
 import com.hertz.hertzreservation.repository.VehicleRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,11 +20,6 @@ public class VehicleServiceImpl implements VehicleService {
             LoggerFactory.getLogger(VehicleServiceImpl.class);
 
     private final VehicleRepository vehicleRepository;
-
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    private static final String EVENT_SERVICE_URL =
-            "http://kafka-event-service:8082/events/vehicle";
 
     public VehicleServiceImpl(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
@@ -120,27 +113,6 @@ public class VehicleServiceImpl implements VehicleService {
 
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll();
 
-        if (vehicleEntities.isEmpty()) {
-
-            logger.warn("No vehicles found. Publishing VEHICLE_NOT_AVAILABLE event");
-
-            VehicleEventDTO event = new VehicleEventDTO();
-
-            event.setEventType("VEHICLE_NOT_AVAILABLE");
-            event.setVehicleId(null);
-            event.setCustomerEmail("test@test.com");
-            event.setSearchCriteria("ALL_VEHICLES_SEARCH");
-            event.setEventTime(Instant.now());
-
-            restTemplate.postForObject(
-                    EVENT_SERVICE_URL,
-                    event,
-                    String.class
-            );
-
-            logger.info("VEHICLE_NOT_AVAILABLE event published");
-        }
-
         List<VehicleResponseDTO> vehicles = vehicleEntities
                 .stream()
                 .map(this::mapToResponse)
@@ -149,42 +121,6 @@ public class VehicleServiceImpl implements VehicleService {
         logger.info("Total vehicles fetched={}", vehicles.size());
 
         return vehicles;
-    }
-
-    @Override
-    public void reserveVehicle(String vehicleId, String customerEmail) {
-
-        logger.info("Vehicle reservation requested id={} email={}",
-                vehicleId, customerEmail);
-
-        VehicleEntity vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> {
-                    logger.error("Vehicle not found for reservation id={}", vehicleId);
-                    return new RuntimeException("Vehicle not found");
-                });
-
-        logger.info("Vehicle found. Publishing VEHICLE_RESERVATION_EVENT");
-
-        VehicleEventDTO event = new VehicleEventDTO();
-
-        event.setEventType("VEHICLE_RESERVATION_EVENT");
-        event.setVehicleId(vehicleId);
-        event.setCustomerEmail(customerEmail);
-        event.setSearchCriteria(null);
-
-        // added fields for email template
-        event.setVehicleName(vehicle.getCategory().name());
-        event.setVehicleType(vehicle.getRentalType().name());
-
-        event.setEventTime(Instant.now());
-
-        restTemplate.postForObject(
-                EVENT_SERVICE_URL,
-                event,
-                String.class
-        );
-
-        logger.info("VEHICLE_RESERVATION_EVENT published successfully");
     }
 
     private void validateDateRange(Instant from, Instant to) {
