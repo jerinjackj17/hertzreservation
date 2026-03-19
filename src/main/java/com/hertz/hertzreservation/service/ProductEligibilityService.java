@@ -12,7 +12,8 @@ import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,10 @@ public class ProductEligibilityService {
     private static final String EVENT_SERVICE_URL =
             "http://kafka-event-service:8082/events/vehicle";
 
+    // readable timestamp format e.g. "2026-03-18 14:32:05"
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public ProductEligibilityService(ProductRepository productRepository,
                                      EligibilityService eligibilityService) {
         this.productRepository = productRepository;
@@ -46,7 +51,7 @@ public class ProductEligibilityService {
 
         // step 1: check customer eligibility — if they fail, just return empty, no event
         if (!eligibilityService.isEligible(request)) {
-            logger.warn("Customer failed eligibility check — no event fired");
+            logger.warn("Customer failed eligibility check — no event sent");
             return List.of();
         }
 
@@ -89,12 +94,15 @@ public class ProductEligibilityService {
                     + ", Income: " + request.getAnnualIncome()
                     + ", Reservation Date: " + request.getReservationDate();
 
+            // readable local timestamp for kafka console visibility
+            String eventTime = LocalDateTime.now().format(FORMATTER);
+
             VehicleEventDTO event = new VehicleEventDTO();
             event.setEventType("VEHICLE_NOT_AVAILABLE");
             event.setCustomerName(request.getName());
             event.setCustomerEmail(request.getEmail());
             event.setSearchCriteria(searchCriteria);
-            event.setEventTime(Instant.now());
+            event.setEventTime(eventTime);
 
             logger.info("Publishing VEHICLE_NOT_AVAILABLE event for email={}",
                     request.getEmail());

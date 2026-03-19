@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository repository;
     private final RestTemplate restTemplate;
+
+    // readable timestamp format e.g. "2026-03-18 14:32:05"
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /*
      * Kafka event service endpoint inside Docker network
@@ -97,13 +103,15 @@ public class CustomerServiceImpl implements CustomerService {
 
             logger.info("Birthday detected for {}", saved.getEmail());
 
-            BirthdayEventDTO event = new BirthdayEventDTO(); // create empty event object
+            BirthdayEventDTO event = new BirthdayEventDTO();
 
-            event.setEventType("BIRTHDAY_EVENT"); // set event type
-            event.setCustomerName(saved.getFirstName() + " " + saved.getLastName()); // set customer full name
-            event.setCompanyName("Hertz"); // company name
-            event.setEmail(saved.getEmail()); // customer email
-            event.setEventTime(java.time.Instant.now().toString()); // event timestamp
+            event.setEventType("BIRTHDAY_EVENT");
+            event.setCustomerName(saved.getFirstName() + " " + saved.getLastName());
+            event.setCompanyName("Hertz");
+            event.setEmail(saved.getEmail());
+
+            // readable local timestamp instead of Instant unix format
+            event.setEventTime(LocalDateTime.now().format(FORMATTER));
 
             try {
 

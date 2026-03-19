@@ -1,7 +1,5 @@
 package com.hertz.hertzreservation.dto;
 
-import java.time.Instant;
-
 /*
  * VehicleEventDTO
  *
@@ -17,7 +15,9 @@ public class VehicleEventDTO {
 
     private String customerEmail;
     private String searchCriteria;
-    private Instant eventTime;
+
+    // stored as readable string e.g. "2026-03-18 14:32:05"
+    private String eventTime;
 
     public VehicleEventDTO() {
     }
@@ -62,11 +62,11 @@ public class VehicleEventDTO {
         this.searchCriteria = searchCriteria;
     }
 
-    public Instant getEventTime() {
+    public String getEventTime() {
         return eventTime;
     }
 
-    public void setEventTime(Instant eventTime) {
+    public void setEventTime(String eventTime) {
         this.eventTime = eventTime;
     }
 }
